@@ -1,0 +1,107 @@
+---
+title: "datas"
+output: pdf_document
+date: "2023-08-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggmap)
+library(RColorBrewer)
+```
+
+<!--
+Got the packages and how to from here:
+
+https://rdrr.io/cran/ggmap/man/get_stamenmap.html
+https://trucvietle.me/r/tutorial/2017/01/18/spatial-heat-map-plotting-using-r.html
+https://github.com/axelhodler/heator/blob/master/README.md
+and data from:
+
+https://data.detroitmi.gov/datasets/detroitmi::rms-crime-incidents/explore?location=42.357655%2C-83.048440%2C15.00&showTable=true
+-->
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+detDat <- read.csv("~/data/RMS_Crime_Incidents.csv")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+head(detDat)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+attach(detDat)
+coords.data <- data.frame(latitude, longitude)
+
+max_x <- max(longitude)
+min_x <- min(longitude)
+max_y <- max(latitude)
+min_y <- min(latitude)
+
+offset <- .05
+
+map_bounds <- c(left = min_x + offset + .01, bottom = min_y + offset, right = max_x - offset - .01, top = max_y - offset - .01)
+
+coords.map <- get_stamenmap(map_bounds, zoom = 13, maptype = "toner-lite")
+
+coords.map <- ggmap(coords.map, extent="device", legend="none")
+coords.map <- coords.map + stat_density2d(data=coords.data,  aes(x=longitude, y=latitude, fill=..level.., alpha=..level..), geom="polygon")
+coords.map <- coords.map +   scale_fill_gradientn(colours=rev(brewer.pal(7, "Spectral")))
+
+coords.map <- coords.map + theme_bw()
+ggsave(filename="./crime_heatmap_03.png")
+
+detach(detDat)
+```
+
+
+
+```{r}
+# I want to try and constrain the data itself before I put it into the map making
+# functions so that I can see if that gives me a more detailed fill
+# or perhaps there just isn't enough? but then each would be red idk I think I can get it
+attach(detDat)
+
+alpha_seq <- c(seq(0, 10, by=1))
+
+make_map <- function(alph_lev) {
+  coords.data <- data.frame(latitude, longitude)
+  max_x <- max(longitude)
+  min_x <- min(longitude)
+  max_y <- max(latitude)
+  min_y <- min(latitude)
+
+  offset <- .05
+
+  map_bounds <- c(left = min_x + offset + .01, bottom = min_y + offset, right = max_x - offset - .01, top = max_y - offset - .01)
+
+  coords.map <- get_stamenmap(map_bounds, zoom = 11, maptype = "toner-lite")
+
+  coords.map <- ggmap(coords.map, extent="device", legend="none")
+  coords.map <- coords.map + stat_density2d(data=coords.data,  aes(x=longitude, y=latitude, fill=..level.., alpha=alph_lev), geom="polygon")
+  coords.map <- coords.map +   scale_fill_gradientn(colours=rev(brewer.pal(7, "Spectral")))
+
+  coords.map <- coords.map + theme_bw()
+  ggsave(filename= paste("./crime_heatmap_al_.png",alph_lev,".png"))
+}
+
+for (x in alpha_seq) {
+  make_map(x)
+}
+
+detach(detDat)
+```
+

@@ -1,0 +1,48 @@
+"0","# I want to try and constrain the data itself before I put it into the map making"
+"0","# functions so that I can see if that gives me a more detailed fill"
+"0","# or perhaps there just isn't enough? but then each would be red idk I think I can get it"
+"0","attach(detDat)"
+"2","The following objects are masked from detDat (pos = 3):
+
+    address, arrest_charge, block_id, charge_description, council_district, crime_id, day_of_week, hour_of_day, ibr_date, incident_time,
+    incident_timestamp, latitude, longitude, neighborhood, offense_category, offense_description, oid, precinct, report_number,
+    scout_car_area, state_offense_code, X, Y, year, zip_code
+
+"
+"2","The following objects are masked from detDat (pos = 4):
+
+    address, arrest_charge, block_id, charge_description, council_district, crime_id, day_of_week, hour_of_day, ibr_date, incident_time,
+    incident_timestamp, latitude, longitude, neighborhood, offense_category, offense_description, oid, precinct, report_number,
+    scout_car_area, state_offense_code, X, Y, year, zip_code
+
+"
+"0","alpha_seq <- c(seq(0, 10, by=1))"
+"0",""
+"0","make_map <- function(alph_lev) {"
+"0","  coords.data <- data.frame(latitude, longitude)"
+"0","  max_x <- max(longitude)"
+"0","  min_x <- min(longitude)"
+"0","  max_y <- max(latitude)"
+"0","  min_y <- min(latitude)"
+"0",""
+"0","  offset <- .05"
+"0",""
+"0","  map_bounds <- c(left = min_x + offset + .01, bottom = min_y + offset, right = max_x - offset - .01, top = max_y - offset - .01)"
+"0",""
+"0","  coords.map <- get_stamenmap(map_bounds, zoom = 11, maptype = ""toner-lite"")"
+"0",""
+"0","  coords.map <- ggmap(coords.map, extent=""device"", legend=""none"")"
+"0","  coords.map <- coords.map + stat_density2d(data=coords.data,  aes(x=longitude, y=latitude, fill=..level.., alpha=alph_lev), geom=""polygon"")"
+"0","  coords.map <- coords.map +   scale_fill_gradientn(colours=rev(brewer.pal(7, ""Spectral"")))"
+"0",""
+"0","  coords.map <- coords.map + theme_bw()"
+"0","  ggsave(filename= paste(""./crime_heatmap_al_.png"",alph_lev,"".png""))"
+"0","}"
+"0",""
+"0","for (x in alpha_seq) {"
+"0","  make_map(x)"
+"0","}"
+"2","[36mℹ[39m Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.
+"
+"2","[38;5;251mSaving 7 x 7 in image[39m"
+"0","detach(detDat)"
