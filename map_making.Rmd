@@ -1,5 +1,6 @@
 ---
 title: "Heat Map-Detroit"
+author: Austin Burns
 output: pdf_document
 date: "2023-08-13"
 ---
@@ -21,21 +22,6 @@ https://github.com/axelhodler/heator/blob/master/README.md
 Data from:
 https://data.detroitmi.gov/datasets/detroitmi::rms-crime-incidents/explore?location=42.357655%2C-83.048440%2C15.00&showTable=true
 -->
-
-
-```{r cars}
-detDat <- read.csv("~/data/RMS_Crime_Incidents.csv")
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-head(detDat)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ```{r}
 attach(detDat)
@@ -61,8 +47,6 @@ ggsave(filename="./crime_heatmap_03.png")
 
 detach(detDat)
 ```
-
-
 
 ```{r}
 alpha_seq <- c(seq(0, 10, by=1))
